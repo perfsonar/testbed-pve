@@ -1,0 +1,20 @@
+#
+# Testbed Hosts
+#
+
+# Host						pS Repository	Bundle		Ports to Open	Label
+
+tb-el9-prod.ps.ns.internet2.edu			production	testpoint	48108/tcp	I2 EL9 Prod
+tb-el9-prod-rebuild.ps.ns.internet2.edu		production	testpoint	48108/tcp	I2 EL9 Prod Rebuild
+tb-el9-staging.ps.ns.internet2.edu		staging		testpoint	48108/tcp	I2 EL9 Staging
+tb-el9-staging-rebuild.ps.ns.internet2.edu	staging		testpoint	48108/tcp	I2 EL9 Staging Rebuild
+
+# tb-d12-prod.ps.ns.internet2.edu		production	testpoint	48108/tcp
+# tb-d12-prod-rebuild.ps.ns.internet2.edu	production	testpoint	48108/tcp
+# tb-d12-staging.ps.ns.internet2.edu		staging		testpoint	48108/tcp
+# tb-d12-staging-rebuild.ps.ns.internet2.edu	staging		testpoint	48108/tcp
+
+# tb-u22-prod.ps.ns.internet2.edu		production	testpoint	48108/tcp
+# tb-u22-prod-rebuild.ps.ns.internet2.edu	production	testpoint	48108/tcp
+# tb-u22-staging.ps.ns.internet2.edu		staging		testpoint	48108/tcp
+# tb-u22-staging-rebuild.ps.ns.internet2.edu	staging		testpoint	48108/tcp

@@ -1,0 +1,65 @@
+#!/bin/sh -e
+#
+# Add just enough to the system to run 'psconfig validate'.
+#
+# This cannot be done in Ansible because it happens before the system
+# is otherwise bootstrapped.
+#
+
+
+# Don't bother if pSConfig is already installed
+which psconfig > /dev/null && exit 0
+
+
+TMPBASE=$(mktemp -d)
+cleanup()
+{
+    rm -rf "${TMPBASE}"
+}
+trap cleanup EXIT
+
+
+# Add the perfSONAR group and user if they doesn't exist
+
+# TODO: There's a missing dependency somewhere in the perfSONAR Debian
+# repo that keeps these accounts from being created.
+
+PERFSONAR_USER=perfsonar
+PERFSONAR_GROUP=perfsonar
+
+groupadd --force --system "${PERFSONAR_GROUP}"
+
+# Note: The default behavior for this is to have the password
+# disabled.  That makes it su-able but not login-able.
+getent passwd "${PERFSONAR_USER}" > /dev/null \
+    || useradd \
+	   --comment 'perfSONAR' \
+	   --gid "{PERFSONAR_GROUP}" \
+	   --home-dir '/tmp' \
+	   --no-create-home \
+	   --system \
+	   "${PERFSONAR_USER}"
+
+
+export DEBIAN_FRONTEND=noninteractive
+
+
+apt-get -y install software-properties-common curl
+
+curl -o /etc/apt/sources.list.d/perfsonar-release.list \
+     http://downloads.perfsonar.net/debian/perfsonar-release.list
+
+URL=http://downloads.perfsonar.net/debian/perfsonar-official.gpg.key
+
+IMPORT_KEY="${TMPBASE}/key"
+curl -o "${IMPORT_KEY}" "${URL}"
+
+KEYRING="${TMPBASE}/keyring"
+gpg --no-default-keyring --keyring "${KEYRING}" --import "${IMPORT_KEY}"
+
+gpg --no-default-keyring --keyring "${KEYRING}" --export \
+    > "/etc/apt/trusted.gpg.d/$(basename -s .key "$URL")"
+
+apt-get -y update
+apt-get -y upgrade
+apt-get -y install perfsonar-psconfig-utils

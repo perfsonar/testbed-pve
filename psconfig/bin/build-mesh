@@ -1,0 +1,31 @@
+#!/bin/sh -e
+#
+# Build the testbed mesh from several sub-meshes.
+#
+
+
+DIR="$1"
+
+TMPBASE=$(mktemp -d)
+cleanup()
+{
+    rm -rf "${TMPBASE}"
+}
+trap cleanup EXIT
+
+
+LAST_BUILT="${TMPBASE}/last-built"
+echo "{}" > "${LAST_BUILT}"
+
+
+find "${DIR}" -type d \
+    | egrep -e '^./[0-9]+-[^/]*$' \
+    | sort -n \
+    | while read PART
+      do
+    	  make "MESH=${LAST_BUILT}" -C "${PART}" clean 1>&2
+	  make "MESH=${LAST_BUILT}" -C "${PART}" 1>&2
+	  cat "${PART}/mesh.json" > "${LAST_BUILT}"
+      done
+
+cat "${LAST_BUILT}"

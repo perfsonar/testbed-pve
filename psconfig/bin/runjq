@@ -1,0 +1,37 @@
+#!/bin/sh -e
+#
+# Run a jq script stored in a file.
+#
+# Args:
+#  1  - Path to JQ script
+#  2+ - Additional args to JQ
+
+if [ -z "${JQPATH}" ]
+then
+    JQPATH=".:./lib/jq:$(dirname $0)/../lib/jq"
+fi
+
+SCRIPT="$1"
+shift
+
+if [ ! -r "${SCRIPT}" ]
+then
+    # Look for it in JQ_PATH first.
+    for DIR in $(echo "${JQPATH}" | sed -e 's/:/\n/g')
+    do
+	SCRIPT_IN_PATH="${DIR}/${SCRIPT}"
+	if [ -r "${SCRIPT_IN_PATH}" ]
+	then
+	    SCRIPT=${SCRIPT_IN_PATH}
+	    break
+	fi
+    done
+fi
+
+if [ ! -r "${SCRIPT}" ]
+then
+    echo "${SCRIPT}: No such file or directory" 1>&2
+    exit 1
+fi
+
+jq "$@" "$(cat ${SCRIPT})" -

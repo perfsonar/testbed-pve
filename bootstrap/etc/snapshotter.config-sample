@@ -1,0 +1,15 @@
+#
+# Sample PVE Testbed Configuration
+#
+
+# Where to connect
+API_HOST='pve.example.com:8006'
+
+# PVE API Token Name
+API_ID='root@pam!mytoken'
+
+# PVE API Token Secret
+API_TOKEN='deadbeef-feed-face-9600-000000000000'
+
+# Name of the snapshot that rolls back installs
+RESTORE_SNAPSHOT='testbed-rebuild'

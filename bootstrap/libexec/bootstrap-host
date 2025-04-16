@@ -1,0 +1,70 @@
+#!/bin/sh -e
+#
+# Bootstrap a perfSONAR Test Bed Host
+#
+
+# Un-comment this to echo what would be done.
+# INERT=echo
+
+# This script is self-deleting when run if --delete is in effect.
+
+if [ "$1" = '--delete' ]
+then
+    shift
+    cleanup()
+    {
+	echo "Cleaning up."
+	rm -rf "$0"
+    }
+    trap cleanup EXIT
+fi
+
+
+die()
+{
+    echo "$@" 1>&2
+    exit 1
+}
+
+
+[ $# -eq 3 ] || die "Usage: $0 REPO TO-BUILD PORTS-TO-OPEN / $@"
+
+REPO=$1
+TO_BUILD=$2
+TO_OPEN=$3
+
+
+BUILT_SIGNIFIER="/.testbed-built"
+
+if [ ! -e "${BUILT_SIGNIFIER}" ]
+then
+
+    echo "Installing perfSONAR ${TO_BUILD} from ${REPO}"
+    curl -s https://downloads.perfsonar.net/install \
+	| ${INERT} sh -s - \
+	     --auto-updates \
+	     --security \
+	     --repo "${REPO}" \
+	     "${TO_BUILD}"
+
+    ${INERT} touch "${BUILT_SIGNIFIER}"
+
+fi
+
+
+# Everything below this point is idempotent, so it doesn't hurt to do
+# them again.
+
+# Open ports that perfSONAR may have closed
+
+for PORT in $(echo "${TO_OPEN}" | tr , '\n')
+do
+    echo "Opening port ${PORT}"
+    ${INERT} firewall-cmd "--add-port=${PORT}" --permanent --quiet
+done
+${INERT} firewall-cmd --reload --quiet
+
+# TODO: Subscribe to the mesh once there is one.
+
+
+exit 0

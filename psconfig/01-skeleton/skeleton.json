@@ -1,0 +1,24 @@
+{
+    "_meta": {
+	"display-name": "perfSONAR Testbed"
+    },
+
+    "addresses": {
+    },
+
+    "groups": {
+    },
+
+    "tests": {
+    },
+
+    "schedules": {
+    },
+
+    "tasks": {
+    },
+
+    "archives": {
+    }
+
+}

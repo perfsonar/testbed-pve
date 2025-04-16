@@ -1,0 +1,52 @@
+#
+# Common Functions
+#
+
+WHOAMI=$(basename "$0")
+WHEREAMI=$(dirname "$0")
+
+TOP=$(readlink -f "${WHEREAMI}/..")
+BIN="${TOP}/bin"
+ETC="${TOP}/etc"
+LIBEXEC="${TOP}/libexec"
+
+HOSTS="${ETC}/hosts.json"
+
+get_host_list()
+{
+    jq -r 'to_entries | .[] |  select(.value.enabled or .value.enabled == null) | .key' "${HOSTS}"
+}
+
+get_host()
+{
+    jq --arg host "$1" '.[$host]' "${HOSTS}"
+}
+
+get_host_attr()
+{
+    jq -r \
+       --arg host "$1" \
+       --arg attr "$2" \
+       '.[$host][$attr] | if type == "array" then .[] else . end' \
+       "${HOSTS}"
+}
+
+
+CONFIG="${ETC}/${WHOAMI}.config"
+if [ -r "${CONFIG}" ]
+then
+    . "${CONFIG}"
+fi
+
+SSH_CONFIG="${ETC}/ssh.config"
+if [ ! -r "${SSH_CONFIG}" ]
+then
+    SSH_CONFIG=/dev/null
+fi
+
+
+die()
+{
+    echo "$@" 1>&2
+    exit 1
+}

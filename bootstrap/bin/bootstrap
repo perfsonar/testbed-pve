@@ -1,0 +1,25 @@
+#!/bin/sh -e
+#
+# Bootstrap all Testbed Hosts
+#
+
+. "$(dirname "$0")/common"
+
+
+REMOTE_BOOTSTRAP="/tmp/bootstrap"
+REMOTE_LOG="/var/log/bootstrap.log"
+
+get_host_list \
+    | while read NAME
+      do
+	  LABEL=$(get_host_attr "${NAME}" label)
+	  REPO=$(get_host_attr "${NAME}" repo)
+	  BUNDLE=$(get_host_attr "${NAME}" bundle)
+	  TO_OPEN=$(get_host_attr "${NAME}" ports)
+
+	  printf '\n#\n# Bootstrapping %s (%s)\n#\n\n' "${LABEL}" "${NAME}"
+
+	  scp -F "${SSH_CONFIG}" -q "${LIBEXEC}/bootstrap-host" "${NAME}:${REMOTE_BOOTSTRAP}"
+	  ssh -F "${SSH_CONFIG}" -q "${NAME}" \
+	      ${REMOTE_BOOTSTRAP} --delete ${REPO} ${BUNDLE} ${TO_OPEN} < /dev/null
+      done

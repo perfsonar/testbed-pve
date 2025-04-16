@@ -1,0 +1,71 @@
+#!/bin/bash
+
+
+# TODO: None of this is error-checked
+
+WHOAMI=$(basename "$0")
+WHEREAMI=$(dirname "$0")
+
+. "${WHEREAMI}/${WHOAMI}.config"
+
+API_PREFIX="https://${API_HOST}/api2/json"
+API_AUTH_HEADER="Authorization: PVEAPIToken=${API_ID}=${API_TOKEN}"
+
+
+api_get()
+{
+    curl --silent -k \
+	 -H 'Content-Type: application/json' \
+	 -H "${API_AUTH_HEADER}" \
+	 "${API_PREFIX}/$1"
+}
+
+
+# Roll a VM back to a snapshot
+#
+# Args:
+#  1 - Node     (pve0)
+#  2 - VM Type  (lxc, qemu)
+#  3 - VM ID    (123)
+#  4 - snapname (rollback-here)
+
+rollback_to_snapshot()
+{    
+    curl --silent -k \
+	-X POST \
+	-d "{ \"node\": \"$1\", \"vmid\": $3, \"snapname\": \"$4\" }" \
+        -H 'Content-Type: application/json' \
+	-H "${API_AUTH_HEADER}" \
+	-o /dev/null \
+	"${API_PREFIX}/nodes/$1/$2/$3/snapshot/$4/rollback"
+
+    # Force start
+    curl --silent -k \
+	-X POST \
+	-d "{ \"node\": \"$1\", \"vmid\": $3 }" \
+        -H 'Content-Type: application/json' \
+	-H "${API_AUTH_HEADER}" \
+	"${API_PREFIX}/nodes/$1/$2/$3/status/start"
+}
+
+
+
+
+for NODE in $(api_get nodes | jq -r '.data[] | .node')
+do
+    for VM_TYPE in lxc qemu
+    do
+	for VM_ID in $(api_get "nodes/${NODE}/${VM_TYPE}" | jq -r '.data[] | select(.status == "running") | .vmid')
+	do
+	    HAS_RESTORE_SNAPSHOT=$(api_get "nodes/${NODE}/${VM_TYPE}/${VM_ID}/snapshot" \
+				 | jq -r "[ .data[] | select(.name == \"${RESTORE_SNAPSHOT}\") ] | length")
+	    if [ "${HAS_RESTORE_SNAPSHOT}" -gt 0 ]
+	    then
+		VM_NAME=$(api_get "nodes/${NODE}/${VM_TYPE}/${VM_ID}/config/" | jq -r '.data.hostname')
+	        echo ROLLBACK $NODE $VM_TYPE $VM_NAME "($VM_ID)" to ${RESTORE_SNAPSHOT}
+		rollback_to_snapshot "${NODE}" "${VM_TYPE}" "${VM_ID}" "${RESTORE_SNAPSHOT}"
+	    fi
+	done
+    done
+done
+

@@ -1,0 +1,50 @@
+#!/bin/sh -e
+#
+# Input: mesh.json on stdin
+#
+
+
+if [ "$1" = '--warn-only' ]
+then
+    ERROR_EXIT=0
+    shift
+else
+    ERROR_EXIT=1
+fi
+
+
+TMPBASE=$(mktemp -d)
+cleanup()
+{
+    rm -rf "${TMPBASE}"
+}
+trap cleanup EXIT
+
+
+resolves()
+{
+    host "$1" > /dev/null 2>&1
+}
+
+UNRESOLVED="${TMPBASE}.unresolved"
+
+jq -r '.addresses[] | .address, if ._meta.gateway == null then empty else ._meta.gateway end' \
+    | sort \
+    | uniq \
+    | while read ADDRESS
+do
+    if ! resolves "${ADDRESS}"
+    then
+	echo "${ADDRESS}" >> "${UNRESOLVED}"
+    fi
+done
+
+
+if [ -s "${UNRESOLVED}" ]
+then
+    echo "These hosts do not resolve:" 1>&2
+    cat "${UNRESOLVED}" 1>&2
+    exit "${ERROR_EXIT}"
+fi
+
+exit 0

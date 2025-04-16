@@ -1,0 +1,117 @@
+{
+    "tb-el9-prod.ps.ns.internet2.edu": {
+	"label": "Internet2 EL9 Prod",
+        "repo": "production",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-el9-prod-rebuild.ps.ns.internet2.edu": {
+	"label": "Internet2 EL9 Prod Rebuild",
+        "repo": "production",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-el9-staging.ps.ns.internet2.edu": {
+	"label": "Internet2 EL9 Staging",
+        "repo": "staging",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-el9-staging-rebuild.ps.ns.internet2.edu": {
+	"label": "Internet2 EL9 Staging Rebuild",
+        "repo": "staging",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+
+    "tb-d12-prod.ps.ns.internet2.edu": {
+	"label": "Internet2 D12 Prod",
+        "repo": "production",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-d12-prod-rebuild.ps.ns.internet2.edu": {
+	"label": "Internet2 D12 Prod Rebuild",
+        "repo": "production",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-d12-staging.ps.ns.internet2.edu": {
+	"label": "Internet2 D12 Staging",
+        "repo": "staging",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-d12-staging-rebuild.ps.ns.internet2.edu": {
+	"label": "Internet2 D12 Staging Rebuild",
+        "repo": "staging",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+
+    "tb-u22-prod.ps.ns.internet2.edu": {
+	"TODO": "***** Ubuntu has trouble with [ot]wamp segfaulting, which torpedoes installs.",
+	"enabled": false,
+	"label": "Internet2 U22 Prod",
+        "repo": "production",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-u22-prod-rebuild.ps.ns.internet2.edu": {
+	"enabled": false,
+	"label": "Internet2 U22 Prod Rebuild",
+        "repo": "production",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-u22-staging.ps.ns.internet2.edu": {
+	"enabled": false,
+	"label": "Internet2 U22 Staging",
+        "repo": "staging",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    },
+    "tb-u22-staging-rebuild.ps.ns.internet2.edu": {
+	"enabled": false,
+	"label": "Internet2 U22 Staging Rebuild",
+        "repo": "staging",
+	"bundle": "testpoint",
+	"ports": [
+	    "48108/tcp"
+	],
+	"bandwidth": 50000000
+    }
+}

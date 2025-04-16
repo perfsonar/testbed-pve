@@ -1,0 +1,168 @@
+{
+
+    "tests": {
+
+	"reachability-v4": {
+	    "type": "rtt",
+	    "spec": {
+		"source-node": "{% pscheduler_address[0] %}",
+		"source": "{% address[0] %}",
+                "ip-version": 4,
+		"dest": "{% address[1] %}"
+	    }
+	},
+	"reachability-v6": {
+	    "type": "rtt",
+	    "spec": {
+		"source-node": "{% pscheduler_address[0] %}",
+		"source": "{% address[0] %}",
+                "ip-version": 6,
+		"dest": "{% address[1] %}"
+	    }
+	},
+
+	"path-v4": {
+	    "type": "trace",
+	    "spec": {
+		"source-node": "{% pscheduler_address[0] %}",
+		"source": "{% address[0] %}",
+                "ip-version": 4,
+		"dest": "{% address[1] %}"
+	    }
+	},
+	"path-v6": {
+	    "type": "trace",
+	    "spec": {
+		"source-node": "{% pscheduler_address[0] %}",
+		"source": "{% address[0] %}",
+                "ip-version": 6,
+		"dest": "{% address[1] %}"
+	    }
+	},
+
+	"latency-v4": {
+	    "type": "latencybg",
+	    "spec": {
+		"ip-version": 4,
+		"source": "{% address[0] %}",
+		"dest": "{% address[1] %}"
+	    }
+	},
+
+	"latency-v6": {
+	    "type": "latencybg",
+	    "spec": {
+		"ip-version": 6,
+		"source": "{% address[0] %}",
+		"dest": "{% address[1] %}"
+	    }
+	}
+    },
+
+
+    "schedules": {
+	"1m": {
+	    "repeat": "PT2M",
+	    "slip": "PT1M",
+	    "sliprand": true
+	},
+	"5m": {
+	    "repeat": "PT5M",
+	    "slip": "PT4M",
+	    "sliprand": true
+	},
+	"15m": {
+	    "repeat": "PT15M",
+	    "slip": "PT10M",
+	    "sliprand": true
+	},
+	"1h": {
+	    "repeat": "PT1H",
+	    "slip": "PT30M",
+	    "sliprand": false
+	}
+    },
+    
+    "tasks": {
+
+	"rtt-v4": {
+	    "group": "perfsonar",
+	    "test": "reachability-v4",
+	    "schedule": "1m",
+	    "archives": [],
+	    "_meta": {
+		"display-name": "Round Trip Time - IPv4 - Ping Loss"
+	    },
+	    "reference": {
+		"display-task-name": "reachability-v4",
+		"display-task-group": [ "reachability-v4" ]
+            }
+	},
+	"rtt-v6": {
+	    "group": "perfsonar",
+	    "test": "reachability-v6",
+	    "schedule": "1m",
+	    "archives": [],
+	    "_meta": {
+		"display-name": "Round Trip Time - IPv6 - Ping Loss"
+	    },
+	    "reference": {
+		"display-task-name": "reachability-v6",
+		"display-task-group": [ "reachability-v6" ]
+            }
+	},
+
+	"path-v4": {
+	    "group": "perfsonar",
+	    "test": "path-v4",
+	    "schedule": "1m",
+	    "archives": [],
+	    "_meta": {
+		"display-name": "Path - IPv4"
+	    },
+	    "reference": {
+		"display-task-name": "path-v4",
+		"display-task-group": [ "path-v4" ]
+            }
+	},
+	"path-v6": {
+	    "group": "perfsonar",
+	    "test": "path-v6",
+	    "schedule": "1m",
+	    "archives": [],
+	    "_meta": {
+		"display-name": "Path - IPv6"
+	    },
+	    "reference": {
+		"display-task-name": "path-v6",
+		"display-task-group": [ "path-v6" ]
+            }
+	},
+
+	"latency-v4": {
+	    "group": "perfsonar",
+	    "test": "latency-v4",
+	    "archives": [],
+	    "_meta": {
+		"display-name": "Latency - IPv4"
+	    },
+	    "reference": {
+		"display-task-name": "latency-v4",
+		"display-task-group": [ "latency-v4" ]
+            }
+	},
+	"latency-v6": {
+	    "group": "perfsonar",
+	    "test": "latency-v6",
+	    "archives": [],
+	    "_meta": {
+		"display-name": "Latency - IPv6"
+	    },
+	    "reference": {
+		"display-task-name": "latency-v6",
+		"display-task-group": [ "latency-v6" ]
+            }
+	}
+    }
+
+}
