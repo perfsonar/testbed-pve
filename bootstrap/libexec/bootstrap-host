@@ -64,7 +64,9 @@ do
 done
 ${INERT} firewall-cmd --reload --quiet
 
-# TODO: Subscribe to the mesh once there is one.
 
+# Subscribe to the mesh
+# TODO: Should eventually be HTTPS.
+psconfig remote add 'http://mesh.ps.ns.internet2.edu'
 
 exit 0

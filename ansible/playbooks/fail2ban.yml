@@ -1,0 +1,13 @@
+#
+# Fail2Ban Playbook
+#
+
+- name: Install Fail2Ban
+  ansible.builtin.package:
+      name: fail2ban
+      
+- name: Enable Fail2Ban
+  ansible.builtin.service:
+    name: fail2ban
+    enabled: true
+    state: restarted

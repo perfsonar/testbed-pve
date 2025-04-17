@@ -1,0 +1,19 @@
+#
+# Main Playbook for perfSONAR Testbed
+#
+
+- name: All Systems
+  hosts: all
+  tasks:
+    - include_tasks: 'playbooks/{{ item }}.yml'
+      with_items:
+        - debug
+        - all
+ 
+- name: Mesh Servers
+  hosts: mesh_servers
+  tasks:
+    - include_tasks: 'playbooks/{{ item }}.yml'
+      with_items:
+        - fail2ban
+        - mesh

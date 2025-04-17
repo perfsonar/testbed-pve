@@ -38,7 +38,7 @@ then
     . "${CONFIG}"
 fi
 
-SSH_CONFIG="${ETC}/ssh.config"
+SSH_CONFIG="${TOP}/../etc/ssh.config"
 if [ ! -r "${SSH_CONFIG}" ]
 then
     SSH_CONFIG=/dev/null

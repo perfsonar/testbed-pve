@@ -61,25 +61,10 @@
 
 
     "schedules": {
-	"1m": {
-	    "repeat": "PT2M",
-	    "slip": "PT1M",
-	    "sliprand": true
-	},
-	"5m": {
+	"default": {
 	    "repeat": "PT5M",
 	    "slip": "PT4M",
 	    "sliprand": true
-	},
-	"15m": {
-	    "repeat": "PT15M",
-	    "slip": "PT10M",
-	    "sliprand": true
-	},
-	"1h": {
-	    "repeat": "PT1H",
-	    "slip": "PT30M",
-	    "sliprand": false
 	}
     },
     
@@ -88,7 +73,7 @@
 	"rtt-v4": {
 	    "group": "perfsonar",
 	    "test": "reachability-v4",
-	    "schedule": "1m",
+	    "schedule": "default",
 	    "archives": [],
 	    "_meta": {
 		"display-name": "Round Trip Time - IPv4 - Ping Loss"
@@ -101,7 +86,7 @@
 	"rtt-v6": {
 	    "group": "perfsonar",
 	    "test": "reachability-v6",
-	    "schedule": "1m",
+	    "schedule": "default",
 	    "archives": [],
 	    "_meta": {
 		"display-name": "Round Trip Time - IPv6 - Ping Loss"
@@ -115,7 +100,7 @@
 	"path-v4": {
 	    "group": "perfsonar",
 	    "test": "path-v4",
-	    "schedule": "1m",
+	    "schedule": "default",
 	    "archives": [],
 	    "_meta": {
 		"display-name": "Path - IPv4"
@@ -128,7 +113,7 @@
 	"path-v6": {
 	    "group": "perfsonar",
 	    "test": "path-v6",
-	    "schedule": "1m",
+	    "schedule": "default",
 	    "archives": [],
 	    "_meta": {
 		"display-name": "Path - IPv6"

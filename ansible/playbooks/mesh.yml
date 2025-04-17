@@ -1,0 +1,84 @@
+#
+# Mesh Web Server Playbook
+#
+
+# TODO: Would prefer to import other playooks here instead of main.yml
+
+# TODO: This should barf if not on an Alpine system
+
+
+# Mesh Directory
+
+- name: Make a convenient place for the mesh to go
+  ansible.builtin.file:
+    dest: /mesh
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Install mesh configuration
+  ansible.builtin.copy:
+    src: assets/mesh/mesh.json
+    dest: /mesh
+    mode: "0644"
+    owner: root
+    group: root
+
+
+# Lighttpd
+
+- name: Install Lighttpd and required packages
+  ansible.builtin.package:
+    name: '{{ package }}'
+  loop_control:
+    loop_var: package
+  with_items:
+      - lighttpd
+      - py3-cryptography
+
+- name: Make SSL directory
+  ansible.builtin.file:
+    dest: /etc/ssl/lighttpd
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Generate a private key
+  community.crypto.openssl_privatekey:
+    path: /etc/ssl/lighttpd/server.key
+    size: 2048
+    mode: '0644'
+    type: RSA    
+
+- name: Generate a self-signed certificate
+  community.crypto.x509_certificate:
+    path: /etc/ssl/lighttpd/server.crt
+    privatekey_path: /etc/ssl/lighttpd/server.key
+    provider: selfsigned
+    mode: '0644'
+
+- name: Build server PEM
+  ansible.builtin.shell: |
+    sh -c 'cat /etc/ssl/lighttpd/server.key /etc/ssl/lighttpd/server.crt > /etc/ssl/lighttpd/server.pem'
+
+# Remainder of Lighttpd
+
+- name: Install Lighttpd configuration
+  ansible.builtin.copy:
+    src: assets/mesh/lighttpd.conf
+    dest: /etc/lighttpd
+    mode: "0640"
+    owner: root
+    group: root
+
+- name: Enable Lighttpd
+  ansible.builtin.service:
+    name: lighttpd
+    enabled: true
+    state: restarted
+
+# TODO: Letsencrypt
+# See https://docs.ansible.com/ansible/latest/collections/community/crypto/acme_certificate_module.html
+# See https://github.com/geerlingguy/ansible-role-certbot

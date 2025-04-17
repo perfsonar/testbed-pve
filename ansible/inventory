@@ -1,0 +1,6 @@
+#
+# Hosts to be provisioned with Ansible
+#
+
+[mesh_servers]
+mesh.ps.ns.internet2.edu
