@@ -124,9 +124,8 @@ def throughput_tests:
 def schedules:
   {
     "throughput": {
-      "repeat": "PT6H",
-      "slip": "PT2H",
-      "sliprand": true,
+      "repeat": "PT4H",
+      "slip": "PT4H"
     }
   }
 ;
