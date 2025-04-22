@@ -1,0 +1,62 @@
+#
+# Install perfSONAR with the Auto-Installer
+#
+# Variables:
+#   perfsonar_repo
+#   perfsonar_bundle
+#   perfsonar_mesh (Optional)
+
+- name: Check for required variables
+  ansible.builtin.fail:
+    msg: 'Missing required variable(s): perfsonar_repo perfsonar_bundle'
+  when: perfsonar_repo is undefined or perfsonar_bundle is undefined
+
+- name: Install perfSONAR auto-installer prerequisites
+  ansible.builtin.package:
+      name: curl
+
+- name: Check if setup marker exists
+  ansible.builtin.stat:
+    path: '{{ setup_marker }}'
+  register: marker_stat
+
+# Note that this doesn't quote perfsonar_installer_args because it can
+# be multiple words.
+- name: Install perfSONAR
+  ansible.builtin.shell: |
+    curl -s https://downloads.perfsonar.net/install \
+        | sh -s - \
+              --repo {{ perfsonar_repo | quote }} \
+              {{ perfsonar_installer_args | default('') }} \
+              {{ perfsonar_bundle | quote }}
+  when: not marker_stat.stat.exists
+
+- name: Create the setup marker
+  ansible.builtin.file:
+    path: '{{ setup_marker }}'
+    owner: root
+    group: root
+    mode: '664'
+    state: touch
+
+
+# Testpoint / Toolkit Actions
+
+- name: Troubleshoot pScheduler
+  ansible.builtin.shell: |
+    pscheduler troubleshoot
+  when: perfsonar_bundle == "testpoint" or perfsonar_bundle == "toolkit"
+
+- name: Subscribe to the mesh
+  ansible.builtin.shell: |
+    psconfig remote add {{ perfsonar_mesh | quote }}
+  when: (perfsonar_bundle == "testpoint" or perfsonar_bundle == "toolkit") and perfsonar_mesh is defined
+
+
+# Archive Actions
+
+- name: Troubleshoot the archive
+  ansible.builtin.shell: |
+    psarchive troubleshoot --skip-opensearch-data
+  when: perfsonar_bundle == "archive"
+

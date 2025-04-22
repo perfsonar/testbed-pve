@@ -4,7 +4,20 @@
 	    "archiver": "http",
 	    "data": {
 		"schema": 3,
-		"_url": "https://tb-archive-prod.ps.ns.internet2.edu/logstash",
+		"_url": "https://archive-prod.ps.ns.internet2.edu/logstash",
+		"verify-ssl": false,
+		"op": "put",
+		"_headers": {
+		    "x-ps-observer": "{% scheduled_by_address %}",
+		    "content-type": "application/json"
+		}
+	    }
+	},
+	"staging": {
+	    "archiver": "http",
+	    "data": {
+		"schema": 3,
+		"_url": "https://archive-staging.ps.ns.internet2.edu/logstash",
 		"verify-ssl": false,
 		"op": "put",
 		"_headers": {

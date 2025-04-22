@@ -1,0 +1,6 @@
+#
+# archive-prod.ps.ns.internet2.edu Host Variables
+#
+
+perfsonar_repo: production
+perfsonar_bundle: archive

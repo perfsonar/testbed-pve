@@ -9,7 +9,7 @@ MESH := mesh.json
 default: build
 
 PS_DATA := ps-data.json
-$(PS_DATA): ../bootstrap/etc/hosts.json
+$(PS_DATA): ../etc/hosts.json
 	ln -s "$<" "$@"
 TO_CLEAN += $(PS_DATA)
 

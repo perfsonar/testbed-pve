@@ -1,0 +1,6 @@
+#
+# archive-staging.ps.ns.internet2.edu Host Variables
+#
+
+perfsonar_repo: staging
+perfsonar_bundle: archive

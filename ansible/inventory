@@ -2,5 +2,16 @@
 # Hosts to be provisioned with Ansible
 #
 
+[testpoints]
+# None yet.
+
+[toolkits]
+# None yet.
+
 [mesh_servers]
 mesh.ps.ns.internet2.edu
+
+[archive_servers]
+archive-prod.ps.ns.internet2.edu
+archive-staging.ps.ns.internet2.edu
+#archive-nightly.ps.ns.internet2.edu

@@ -1,0 +1,202 @@
+#!/bin/sh -e
+#
+#BEGIN-HELP
+#
+# Generate a set of Apache 'Require ip' statements from the addresses
+# in one or more perfSONAR pSConfig files.
+#
+# Usage: psconfig2requireip [ OPTIONS ] PSCONFIG-URL [ PSCONFIG-URL ...]
+#
+# Where:
+#   PSCONFIG-URL is the location of a mesh configuration
+#
+# OPTIONS:
+#   --replace F  Replace file F with the results if changed
+#   --restart S  Restart service S if the file named by --replace changes
+#   --strict     Don't tolerate download, parse or resolution failures
+#   --help       This help#
+#
+#END-HELP
+#
+
+# Utilities
+
+warn()
+{
+    echo "$@" 1>&2
+}
+
+die()
+{
+    warn "$@"
+    exit 1
+}
+
+self_help()
+{
+    sed -n -e '/^#BEGIN-HELP/,/^#END-HELP/{//!p}' $0 \
+	| sed -e 's/^#\s*//'
+}
+
+
+# Gargle the arguments
+
+REPLACE_FILE=
+RESTART=
+STRICT=false
+while echo "$1" | grep -q -E '^--'
+do
+    ARG=$1
+    shift
+
+    case "${ARG}" in
+	--help)
+	    self_help
+	    exit 0
+	    ;;
+	--replace)
+	    REPLACE_FILE=$1
+	    shift
+	    ;;
+	--restart)
+	    RESTART=$1
+	    shift
+	    ;;
+	--strict)
+	    STRICT=true
+	    ;;
+	*)
+	    die "Invalid argument ${ARG}"
+    esac
+done
+
+if [ $# -eq 0 ]
+then
+    self_help 1>&2
+    exit 1
+fi
+
+
+# Temporary storage
+
+TMPBASE=$(mktemp -d)
+cleanup()
+{
+    rm -rf "${TMPBASE}"
+}
+trap cleanup EXIT
+
+
+# Get a list of all unique addresses from a mesh
+# Args:
+#   1 - URL of mesh
+mesh_hosts()
+{
+    local MESH_DOWNLOADED="${TMPBASE}/mesh"
+    local ERRORS="${TMPBASE}/errors"
+
+    if ! curl --silent --insecure "$1" > "${MESH_DOWNLOADED}"
+    then
+	warn "Failed to download ${MESH}" 1>&2
+	${STRICT} && exit 1 || return 0
+    fi
+
+    if ! jq -r '[ .addresses[] 
+                  | (.address, ."pscheduler-address")
+                  | if . == null then empty else . end
+                ] | sort | unique[]' "${MESH_DOWNLOADED}" 2>"${ERRORS}"
+    then
+	echo "Failed to parse ${MESH}:" 1>&2
+	cat "${ERRORS}" | sed -e 's/^/    /g' 1>&2
+	${STRICT} && exit 1 || return 0
+    fi
+}
+
+
+# Get all IPs for a host
+# Args:
+#   1 - Hostname
+host_ips()
+{
+    local IPS="${TMPBASE}/ips"
+    rm -f "${IPS}"
+    for QUERY in a aaaa
+    do
+	dig -r -t "${QUERY}" +short +noadditional "$1" \
+	    | sed -e '/\.$/d' \
+	    >> "${IPS}"
+    done
+
+    if ! [ -s "${IPS}" ]
+    then
+	warn "No resolvable IPs for $1"
+	${STRICT} && exit 1
+    fi
+
+    cat "${IPS}"
+}
+
+
+FAILED=false
+HOST_LIST="${TMPBASE}/host-list"
+touch "${HOST_LIST}"
+for MESH in "$@"
+do
+    if ! mesh_hosts "${MESH}" >> "${HOST_LIST}"
+    then
+	FAILED=true
+    fi
+done
+# Anything that had problems will have sent them to stderr.
+${FAILED} && exit 1
+
+
+# Find the IPs for all hosts
+ADDR_LIST="${TMPBASE}/addr-list"
+touch "${ADDR_LIST}"
+(
+    while read ADDRESS 
+    do
+	host_ips "${ADDRESS}" >> "${ADDR_LIST}"
+    done
+) < "${HOST_LIST}"
+
+
+# Create a list of Apache 'Require ip' statements from the address list
+REQUIRE_LIST="${TMPBASE}/require-list"
+sort "${ADDR_LIST}" \
+    | uniq \
+    | sed -e 's/^/Require ip /g' \
+    > "${REQUIRE_LIST}"
+
+
+# Dump to stdout and exit if we're not replacing a file
+if [ -z "${REPLACE_FILE}" ]
+then
+    cat $REQUIRE_LIST
+    exit 0
+fi
+
+
+# Replace the file if the digests are different
+[ -e "${REPLACE_FILE}" ] \
+    && OLD_DIGEST=$(sha1sum "${REPLACE_FILE}" | cut -d' ' -f 1) \
+    || OLD_DIGEST=""
+NEW_DIGEST=$(sha1sum "${REQUIRE_LIST}" | cut -d' ' -f 1)
+REPLACED=0
+if [ "${NEW_DIGEST}" != "${OLD_DIGEST}" ]
+then
+    cp -f "${REQUIRE_LIST}" "${REPLACE_FILE}"
+    REPLACED=1
+fi
+
+
+# Restart whatever was requested if the file changed
+if [ "${REPLACED}" -eq 1 -a -n "${RESTART}" ]
+then
+    systemctl restart "${RESTART}" \
+	|| die "Restart of ${RESTART} failed."
+fi
+
+
+exit 0

@@ -5,7 +5,6 @@
 	"reachability-v4": {
 	    "type": "rtt",
 	    "spec": {
-		"source-node": "{% pscheduler_address[0] %}",
 		"source": "{% address[0] %}",
                 "ip-version": 4,
 		"dest": "{% address[1] %}"
@@ -14,7 +13,6 @@
 	"reachability-v6": {
 	    "type": "rtt",
 	    "spec": {
-		"source-node": "{% pscheduler_address[0] %}",
 		"source": "{% address[0] %}",
                 "ip-version": 6,
 		"dest": "{% address[1] %}"
@@ -24,7 +22,6 @@
 	"path-v4": {
 	    "type": "trace",
 	    "spec": {
-		"source-node": "{% pscheduler_address[0] %}",
 		"source": "{% address[0] %}",
                 "ip-version": 4,
 		"dest": "{% address[1] %}"
@@ -33,7 +30,6 @@
 	"path-v6": {
 	    "type": "trace",
 	    "spec": {
-		"source-node": "{% pscheduler_address[0] %}",
 		"source": "{% address[0] %}",
                 "ip-version": 6,
 		"dest": "{% address[1] %}"

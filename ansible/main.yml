@@ -10,6 +10,17 @@
         - debug
         - all
  
+- name: Archive Servers
+  hosts: archive_servers
+  tasks:
+    - include_tasks: 'playbooks/{{ item }}.yml'
+      with_items:
+        - fail2ban
+        - admin-password
+        - perfsonar
+        - archive
+
+
 - name: Mesh Servers
   hosts: mesh_servers
   tasks:

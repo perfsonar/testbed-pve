@@ -88,11 +88,12 @@ def throughput_test(ip_version; bandwidth; rev):
       "spec": {
         "source-node": "{% pscheduler_address[0] %}",
         "source": "{% address[0] %}",
+        "dest": "{% address[1] %}",
         "dest-node": "{% pscheduler_address[1] %}",
         "ip-version": ip_version,
-        "dest": "{% address[1] %}",
         "bandwidth": bandwidth,
-        "reverse": rev
+        "reverse": rev,
+	"duration": "PT15S"
       }
     }
   }

@@ -1,0 +1,21 @@
+#
+# Group Variables for Archive Servers
+#
+
+perfsonar_bundle: archive
+perfsonar_installer_args: --auto-updates
+
+web_server:
+  RedHat: httpd
+  Debian: apache2
+
+web_server_config_d: '/etc/{{ web_server[ansible_os_family] }}/conf.d'
+
+# Note: This must not end in .conf or Apache will try to inhale it.
+authorized_ips_file: '{{ web_server_config_d }}/authorized-ips'
+
+web_server_logstash_conf: '{{ web_server_config_d }}/apache-logstash.conf'
+
+dig_package:
+  RedHat: bind-utils
+  Debian: dnsutils

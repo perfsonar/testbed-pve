@@ -1,0 +1,12 @@
+#
+# Group Variables for All Hosts
+#
+
+# File indicating that non-Ansible things have been successfully done
+setup_marker: '/.testbed-built'
+
+perfsonar_mesh: 'http://mesh.ps.ns.internet2.edu'
+
+# This is a generated admin password for applications on the system,
+# not the root password.
+admin_password_path: ~root/admin-password

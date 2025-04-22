@@ -2,6 +2,11 @@
 # Fail2Ban Playbook
 #
 
+- name: Install EPEL
+  ansible.builtin.package:
+      name: epel-release
+  when: ansible_os_family == "RedHat"
+
 - name: Install Fail2Ban
   ansible.builtin.package:
       name: fail2ban

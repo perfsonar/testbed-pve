@@ -1,0 +1,83 @@
+#
+# Archive Server Playbook
+#
+
+- name: Install additional perfSONAR Archive packages
+  ansible.builtin.package:
+    name: '{{ package }}'
+    state: present
+  loop_control:
+    loop_var: package
+  with_items:
+    - perfsonar-archive
+    - perfsonar-grafana
+    - perfsonar-grafana-toolkit
+    - perfsonar-psconfig-hostmetrics
+
+- name: Set Grafana admin password
+  ansible.builtin.shell: |
+    grafana-cli admin reset-admin-password --password-from-stdin < {{ admin_password_path }}
+
+- name: Install an index page
+  ansible.builtin.copy:
+    src: assets/archive/index.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# IP Authentication
+
+- name: Install psconfig2requireip prerequisites
+  ansible.builtin.package:
+    name: '{{ package }}'
+    state: present
+  loop_control:
+    loop_var: package
+  with_items:
+    - curl
+    - '{{ dig_package[ansible_os_family] }}'
+    - jq
+
+- name: Install psconfig2requireip
+  ansible.builtin.copy:
+    src: assets/archive/psconfig2requireip
+    dest: /usr/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate psconfig2requireip job
+  ansible.builtin.set_fact:
+    psconfig2requireip_job: >
+      psconfig2requireip
+      --strict
+      --replace {{ authorized_ips_file | quote }}
+      --restart {{ web_server[ansible_os_family] | quote }}
+      {{ perfsonar_mesh | quote }}
+
+- name: Run psconfig2requireip once
+  ansible.builtin.shell: '{{ psconfig2requireip_job }}'
+
+- name: Install psconfig2requireip cron job
+  ansible.builtin.cron:
+    name: Generate Archive IP Requires
+    minute: '*/15'
+    job: '{{ psconfig2requireip_job }}'
+
+- name: Add inclusion of authorized IP list to Apache config
+  ansible.builtin.lineinfile:
+     path: '{{ web_server_logstash_conf }}'
+     firstmatch: true
+     insertafter: 'Require valid-user'
+     line: 'Include {{ authorized_ips_file }}'
+
+
+# Cleanup
+
+- name: Restart Apache
+  ansible.builtin.service:
+    name: httpd
+    enabled: true
+    state: restarted
