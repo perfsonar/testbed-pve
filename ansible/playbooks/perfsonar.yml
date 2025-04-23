@@ -2,18 +2,34 @@
 # Install perfSONAR with the Auto-Installer
 #
 # Variables:
-#   perfsonar_repo
+#   perfsonar_repo (Optional, defaults to 'production')
 #   perfsonar_bundle
+#   perfsonar_installer_args (Optional)
 #   perfsonar_mesh (Optional)
+#
+# Security note:
+#   perfSONAR's security bundle firewalls all ports except those
+#   in a specific list and will make alternate SSH ports unreachable.
+#   This playbook reads SSHD's configuration and forces all listening
+#   ports open.
+#   
 
 - name: Check for required variables
   ansible.builtin.fail:
-    msg: 'Missing required variable(s): perfsonar_repo perfsonar_bundle'
-  when: perfsonar_repo is undefined or perfsonar_bundle is undefined
+    msg: 'Missing required variable: perfsonar_bundle'
+  when: perfsonar_bundle is undefined
 
 - name: Install perfSONAR auto-installer prerequisites
   ansible.builtin.package:
       name: curl
+
+- name: Install firewalld-open-ssh-ports
+  ansible.builtin.copy:
+    src: assets/perfsonar/firewalld-open-ssh-ports
+    dest: /usr/bin/firewalld-open-ssh-ports
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Check if setup marker exists
   ansible.builtin.stat:
@@ -22,13 +38,15 @@
 
 # Note that this doesn't quote perfsonar_installer_args because it can
 # be multiple words.
+# We run firewalld-open-ssh-ports to undo SSH ports the security package closed.
 - name: Install perfSONAR
   ansible.builtin.shell: |
     curl -s https://downloads.perfsonar.net/install \
         | sh -s - \
-              --repo {{ perfsonar_repo | quote }} \
-              {{ perfsonar_installer_args | default('') }} \
-              {{ perfsonar_bundle | quote }}
+          --repo {{ perfsonar_repo | default('production') | trim |  quote }} \
+          {{ perfsonar_installer_args | default('') | trim }} \
+          {{ perfsonar_bundle | trim | quote }} \
+        ; firewalld-open-ssh-ports
   when: not marker_stat.stat.exists
 
 - name: Create the setup marker
@@ -40,23 +58,27 @@
     state: touch
 
 
-# Testpoint / Toolkit Actions
+# Troubleshooting
 
 - name: Troubleshoot pScheduler
   ansible.builtin.shell: |
     pscheduler troubleshoot
   when: perfsonar_bundle == "testpoint" or perfsonar_bundle == "toolkit"
 
-- name: Subscribe to the mesh
-  ansible.builtin.shell: |
-    psconfig remote add {{ perfsonar_mesh | quote }}
-  when: (perfsonar_bundle == "testpoint" or perfsonar_bundle == "toolkit") and perfsonar_mesh is defined
-
-
-# Archive Actions
-
 - name: Troubleshoot the archive
   ansible.builtin.shell: |
     psarchive troubleshoot --skip-opensearch-data
   when: perfsonar_bundle == "archive"
 
+
+# Subscribe to the mesh if pSConfig is present
+
+- name: Determine if pSConfig was installed
+  ansible.builtin.shell: |
+    type psconfig
+  register: psconfig_stat
+
+- name: Subscribe to the mesh
+  ansible.builtin.shell: |
+    psconfig remote add {{ perfsonar_mesh | quote }}
+  when: psconfig_stat.rc == 0 and perfsonar_mesh is defined

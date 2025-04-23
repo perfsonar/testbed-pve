@@ -3,15 +3,26 @@
 #
 
 [testpoints]
-# None yet.
+#tb-el9-prod.ps.ns.internet2.edu
+tb-el9-prod-rebuild.ps.ns.internet2.edu
+#tb-el9-staging.ps.ns.internet2.edu
+#tb-el9-staging-rebuild.ps.ns.internet2.edu
+#tb-d12-prod.ps.ns.internet2.edu
+#tb-d12-prod-rebuild.ps.ns.internet2.edu
+#tb-d12-staging.ps.ns.internet2.edu
+#tb-d12-staging-rebuild.ps.ns.internet2.edu
+#tb-u22-prod.ps.ns.internet2.edu
+#tb-u22-prod-rebuild.ps.ns.internet2.edu
+#tb-u22-staging.ps.ns.internet2.edu
+#tb-u22-staging-rebuild.ps.ns.internet2.edu
 
 [toolkits]
 # None yet.
 
 [mesh_servers]
-mesh.ps.ns.internet2.edu
+#mesh.ps.ns.internet2.edu
 
-[archive_servers]
-archive-prod.ps.ns.internet2.edu
-archive-staging.ps.ns.internet2.edu
+[archives]
+#archive-prod.ps.ns.internet2.edu
+#archive-staging.ps.ns.internet2.edu
 #archive-nightly.ps.ns.internet2.edu

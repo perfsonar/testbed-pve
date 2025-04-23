@@ -3,7 +3,12 @@
 #
 
 perfsonar_bundle: archive
-perfsonar_installer_args: --auto-updates
+perfsonar_installer_args: >
+  --auto-updates
+  --add perfsonar-archive
+  --add perfsonar-grafana
+  --add perfsonar-grafana-toolkit
+  --add perfsonar-psconfig-hostmetrics
 
 web_server:
   RedHat: httpd

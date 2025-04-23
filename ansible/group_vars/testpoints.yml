@@ -1,0 +1,8 @@
+#
+# Group Variables for testpoints
+#
+
+perfsonar_bundle: testpoint
+perfsonar_installer_args: >-
+  --auto-updates
+  --security

@@ -2,18 +2,6 @@
 # Archive Server Playbook
 #
 
-- name: Install additional perfSONAR Archive packages
-  ansible.builtin.package:
-    name: '{{ package }}'
-    state: present
-  loop_control:
-    loop_var: package
-  with_items:
-    - perfsonar-archive
-    - perfsonar-grafana
-    - perfsonar-grafana-toolkit
-    - perfsonar-psconfig-hostmetrics
-
 - name: Set Grafana admin password
   ansible.builtin.shell: |
     grafana-cli admin reset-admin-password --password-from-stdin < {{ admin_password_path }}

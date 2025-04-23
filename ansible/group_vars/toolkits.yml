@@ -1,0 +1,8 @@
+#
+# Group Variables for toolkits
+#
+
+perfsonar_bundle: toolkit
+perfsonar_installer_args: >-
+  --auto-updates
+  --security

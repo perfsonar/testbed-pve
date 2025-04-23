@@ -1,0 +1,40 @@
+#!/bin/sh -e
+#
+# Identify the ports being listened on by sshd and make firewalld open
+# them.
+
+# Un-comment this to just print the actions
+# INERT=echo
+
+
+die()
+{
+    echo "$@" 1>&2
+    exit 1
+}
+
+
+TMPBASE=$(mktemp -d)
+cleanup()
+{
+    rm -rf "${TMPBASE}"
+}
+trap cleanup EXIT
+
+
+# Make sure the SSHD configuration is valid before continuing.
+sshd -t \
+     || die "SSHD configuration is not valid."
+
+# Get the effective configuration and open all ports
+CONFIG="${TMPBASE}/config"
+sshd -T > "${CONFIG}" \
+     || die "Failed to read the SSHD configuration"
+
+ awk '$1 == "port" { print $2 }' "${CONFIG}" \
+    | while read PORT
+do
+    ${INERT} firewall-cmd "--add-port=${PORT}/tcp" --permanent --quiet
+done
+
+${INERT} firewall-cmd --reload --quiet

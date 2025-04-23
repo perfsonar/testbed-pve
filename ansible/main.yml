@@ -8,10 +8,19 @@
     - include_tasks: 'playbooks/{{ item }}.yml'
       with_items:
         - debug
+        - fail2ban
         - all
+
+- name: Testpoints
+  hosts: testpoints
+  tasks:
+    - include_tasks: 'playbooks/{{ item }}.yml'
+      with_items:
+        - perfsonar
+
  
 - name: Archive Servers
-  hosts: archive_servers
+  hosts: archives
   tasks:
     - include_tasks: 'playbooks/{{ item }}.yml'
       with_items:

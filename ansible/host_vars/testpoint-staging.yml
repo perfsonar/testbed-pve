@@ -1,0 +1,5 @@
+#
+# Generic variables for staging testpoints
+#
+
+perfsonar_repo: staging
